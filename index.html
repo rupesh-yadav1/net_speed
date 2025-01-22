@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internet Speed Test</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Internet Speed Test</h1>
+        </header>
+        <div class="dashboard">
+            <div class="gauge-container">
+                <canvas id="speedGauge"></canvas>
+                <div class="speed-display">
+                    <h2 id="speedValue">0.0</h2>
+                    <p>mbps</p>
+                </div>
+            </div>
+            <button id="checkSpeedBtn">Check Speed</button>
+            <div class="info-boxes">
+                <div class="info">
+                    <h3>Download</h3>
+                    <p id="downloadSpeed">0.0 mbps</p>
+                </div>
+                <div class="info">
+                    <h3>Upload</h3>
+                    <p id="uploadSpeed">0.0 mbps</p>
+                </div>
+                <div class="info">
+                    <h3>Ping</h3>
+                    <p id="pingValue">0 ms</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
