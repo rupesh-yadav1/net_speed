@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, render_template
 import speedtest
+import os  # Import os to use environment variables like PORT
 
 app = Flask(__name__)
 
@@ -32,4 +33,6 @@ def speed():
         return jsonify({'error': f"Failed to fetch speed data: {e}"})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Use the PORT environment variable provided by Render, or default to 5000 for local testing
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
