@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internet Speed Test</title>
+    <style>
+        /* Set the background color to dark grey and text color to white */
+        body {
+            background-color: #333333;  /* Dark grey background */
+            color: white;               /* White text */
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+
+        h1 {
+            font-size: 3em;
+        }
+
+        button {
+            background-color: white;
+            color: #333333;  /* Dark grey text */
+            padding: 15px 25px;
+            font-size: 1.2em;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #616161;  /* Slightly lighter grey for hover effect */
+        }
+
+        #result {
+            font-size: 1.5em;
+            margin-top: 20px;
+        }
+
+        /* Style for the speed meter (custom) */
+        .meter-container {
+            margin-top: 30px;
+        }
+
+        .meter {
+            width: 80%;
+            height: 40px;
+            background-color: #B0B0B0;  /* Dim gray background for the meter */
+            border-radius: 20px;
+            position: relative;
+            margin: 20px auto;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);  /* Soft shadow around the meter */
+        }
+
+        .meter-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 20px;
+            background-color: #191970;  /* Midnight blue color for the meter fill */
+            transition: width 0.5s ease;
+        }
+
+        .meter-label {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: bold;
+            color: white;
+        }
+
+        .meter-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 20px;
+            background-color: rgba(0, 0, 0, 0.2); /* Slight shading for background */
+        }
+    </style>
+    <script>
+        async function fetchSpeed() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerText = "Testing internet speed... Please wait.";
+
+            try {
+                const response = await fetch('/speed');
+                if (!response.ok) {
+                    console.error('Response was not ok');
+                    throw new Error('Failed to fetch speed data');
+                }
+
+                const data = await response.json();
+                if (data.error) {
+                    resultDiv.innerText = `Error: ${data.error}`;
+                } else {
+                    resultDiv.innerText = `
+                        Download Speed: ${data.download} Mbps
+                        Upload Speed: ${data.upload} Mbps
+                    `;
+
+                    // Update the meters based on the fetched speeds
+                    updateMeter('download-meter', data.download);
+                    updateMeter('upload-meter', data.upload);
+                }
+            } catch (error) {
+                console.error("Error fetching speed data:", error);
+                resultDiv.innerText = "Failed to fetch speed data. Please try again.";
+            }
+        }
+
+        // Function to update the meter fill based on speed
+        function updateMeter(meterId, speed) {
+            const meter = document.getElementById(meterId);
+            const fill = meter.querySelector('.meter-fill');
+            const percentage = Math.min(speed, 100);  // Cap at 100%
+
+            // Set the width of the fill based on the speed percentage
+            fill.style.width = `${percentage}%`;
+
+            // Set the label to show the speed
+            meter.querySelector('.meter-label').innerText = `${Math.round(speed)} Mbps`;
+        }
+    </script>
+</head>
+<body>
+    <h1>Internet Speed Test</h1>
+    <button onclick="fetchSpeed()">Check Speed</button>
+    <p id="result">Click the button to test your internet speed.</p>
+
+    <!-- Speed Meters -->
+    <div class="meter-container">
+        <div class="meter" id="download-meter">
+            <div class="meter-background"></div>
+            <div class="meter-fill"></div>
+            <div class="meter-label">0 Mbps</div>
+        </div>
+        <p>Download Speed</p>
+    </div>
+
+    <div class="meter-container">
+        <div class="meter" id="upload-meter">
+            <div class="meter-background"></div>
+            <div class="meter-fill"></div>
+            <div class="meter-label">0 Mbps</div>
+        </div>
+        <p>Upload Speed</p>
+    </div>
+</body>
+</html>
