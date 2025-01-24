@@ -1,38 +1,35 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, jsonify, render_template
 import speedtest
 
 app = Flask(__name__)
 
-# Serve the HTML page
-@app.route("/")
-def home():
-    return render_template("index.html")
-
-# API endpoint to perform the speed test
-@app.route("/api/speed", methods=["GET"])
-def speed_test():
+# Function to get download and upload speeds
+def get_speed():
     try:
-        # Initialize the speedtest object
         st = speedtest.Speedtest()
-        st.get_best_server()  # Find the best server based on ping
-
-        # Perform the speed test
-        download_speed = round(st.download() / 1e6, 2)  # Convert bytes to Mbps
-        upload_speed = round(st.upload() / 1e6, 2)      # Convert bytes to Mbps
-        ping = round(st.results.ping, 2)                # Ping in ms
-
-        # Return the results as JSON
-        return jsonify({
-            "download": download_speed,
-            "upload": upload_speed,
-            "ping": ping
-        })
+        st.get_best_server()  # Get the best server based on latency
+        download_speed = st.download() / 1_000_000  # Convert to Mbps
+        upload_speed = st.upload() / 1_000_000  # Convert to Mbps
+        return round(download_speed, 2), round(upload_speed, 2)
     except Exception as e:
-        # Handle errors and return a message
-        return jsonify({"error": f"Error during speed test: {str(e)}"}), 500
+        # Raise an error to be caught in the route
+        raise Exception(f"Speedtest failed: {e}")
 
-if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 5000))  # Use PORT provided by Render
-    app.run(host="0.0.0.0", port=port)
+# Route to serve the main HTML page
+@app.route('/')
+def index():
+    return render_template('index.html')
 
+# Route to fetch speed data
+@app.route('/speed')
+def speed():
+    try:
+        download_speed, upload_speed = get_speed()
+        return jsonify({'download': download_speed, 'upload': upload_speed})
+    except Exception as e:
+        # Log the error in the console and return it in the response
+        print(f"Error in /speed route: {e}")
+        return jsonify({'error': f"Failed to fetch speed data: {e}"})
+
+if __name__ == '__main__':
+    app.run(debug=True)
